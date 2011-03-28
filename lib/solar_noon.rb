@@ -15,7 +15,7 @@ module SolarNoon
 
     raise "Invalid longitude" unless -180.0 <= longitude && longitude <= 180.0
 
-    t = julian_centuries_time date
+    t = jd_centuries date
     eq_time = true_solar_time_diff_mean_solar_time date
     # utc_offset = Time.now.utc_offset / 60 # in minutes
     minutes = 720 - (longitude * 4) - eq_time # in minutes
@@ -27,14 +27,14 @@ module SolarNoon
 
   # convert Julian Day to centuries since J2000.0.
   # return the T value corresponding to the Julian Day
-  def SolarNoon.julian_centuries_time(date)
+  def SolarNoon.jd_centuries(date)
     (date.jd - 2451545.0) / 36525.0
   end
 
   # calculate the difference between true solar time and mean solar time
   # Takes a Date or DateTime and returns the equation of time in minutes of time
   def SolarNoon.true_solar_time_diff_mean_solar_time(date)
-    t       = julian_centuries_time(date)
+    t       = jd_centuries(date)
     epsilon = obliquity_correction(date)
     l0      = geometric_mean_longitude_of_sun(date)
     e       = earth_orbit_eccentricity(date)
@@ -55,7 +55,7 @@ module SolarNoon
   # calculate the corrected obliquity of the ecliptic
   # Takes a Date or DateTime and returns the corrected obliquity in degrees
   def SolarNoon.obliquity_correction(date)
-    t = julian_centuries_time date
+    t = jd_centuries date
     e0 = mean_obliquity_of_ecliptic date
     omega = 125.04 - 1934.136 * t
     e0 + 0.00256 * Math.cos(degree_to_radians(omega))
@@ -65,7 +65,7 @@ module SolarNoon
   # Takes a Date or DateTime and returns the Geometric Mean Longitude of the
   # Sun in degrees.
   def SolarNoon.geometric_mean_longitude_of_sun(date)
-    t = julian_centuries_time date
+    t = jd_centuries date
 
     l0 = 280.46646 + t * (36000.76983 + 0.0003032 * t)
 
@@ -78,7 +78,7 @@ module SolarNoon
   # calculate the eccentricity of earth's orbit
   # Takes a Date or DateTime and returns the unitless eccentricity
   def SolarNoon.earth_orbit_eccentricity(date)
-    t = julian_centuries_time date
+    t = jd_centuries date
     0.016708634 - t * (0.000042037 + 0.0000001267 * t)
   end
 
@@ -86,14 +86,14 @@ module SolarNoon
   # Takes a Date or DateTime and returns the Geometric Mean Anomaly of the Sun
   # in degrees
   def SolarNoon.geometric_mean_anomaly_sun(date)
-    t = julian_centuries_time date
+    t = jd_centuries date
     357.52911 + t * (35999.05029 - 0.0001537 * t)
   end
 
   # calculate the mean obliquity of the ecliptic
   # Takes a Date or DateTime and returns the mean obliquity in degrees
   def SolarNoon.mean_obliquity_of_ecliptic(date)
-    t = julian_centuries_time date
+    t = jd_centuries date
     seconds = 21.448 - t * (46.8150 + t * (0.00059 - t * (0.001813)))
     23.0 + (26.0 + (seconds / 60.0)) / 60.0
   end
