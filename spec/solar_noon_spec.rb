@@ -1,3 +1,5 @@
+require "spec_helper"
+
 describe SolarNoon do
 
   describe "version" do

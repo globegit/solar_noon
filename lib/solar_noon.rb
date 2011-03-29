@@ -1,4 +1,7 @@
 require "date"
+require "core-ext/date"
+require "core-ext/time"
+require "core-ext/date_time"
 
 module SolarNoon
 
@@ -7,22 +10,19 @@ module SolarNoon
   # for that day. Time returned is UTC; to get local time call `getlocal on the
   # result.
   def SolarNoon.calculate(date, longitude)
-    # If we are given a Time object, convert it to a DateTime
-    date = date.send :to_datetime if date.is_a? Time
+    raise ArgumentError.new "Invalid longitude" unless -180.0 <= longitude && longitude <= 180.0
 
-    raise "Invalid date" unless date.respond_to? :jd
-    julian_day = date.jd
-
-    raise "Invalid longitude" unless -180.0 <= longitude && longitude <= 180.0
-
-    t = jd_centuries date
+    t = jd_centuries(date)
     eq_time = true_solar_time_diff_mean_solar_time date
-    # utc_offset = Time.now.utc_offset / 60 # in minutes
-    minutes = 720 - (longitude * 4) - eq_time # in minutes
-    # solar_noon += 60.0 if dst?
 
-    seconds = Time.utc(date.year, date.month, date.day) + (minutes * 60)
-    Time.at seconds
+    minutes = 720 - (longitude * 4) - eq_time # in minutes
+
+    # Returned time is UTC
+    noon = Time.utc(date.year, date.month, date.day) + (minutes * 60)
+
+    # If we started out with a Date or DateTime then convert to Datetime,
+    # otherwise just return a Time.
+    ([DateTime, Date].include? date.class) ? noon.send(:to_datetime) : noon
   end
 
   # convert Julian Day to centuries since J2000.0.
