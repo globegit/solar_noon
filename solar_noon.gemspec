@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 require "solar_noon/version"
 
 Gem::Specification.new do |s|
-  s.name        = "Solar Noon Calculator"
+  s.name        = "solar_noon"
   s.version     = SolarNoon::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Jason Roth"]
